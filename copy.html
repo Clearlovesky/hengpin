@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>视频播放</title>
+    <link rel="stylesheet" href="css/font-awesome.css"/>
+    <link rel="stylesheet" href="css/player.css"/>
+</head>
+<body>
+<figure>
+    <figcaption>视频播放器</figcaption>
+    <div class="player">
+        <video src="./video/fun.mp4"></video>
+        <div class="controls">
+            <!-- 播放/暂停 -->
+            <a href="javascript:;" class="switch fa fa-play"></a>
+            <!-- 全屏 -->
+            <a href="javascript:;" class="expand fa fa-expand"></a>
+            <!-- 进度条 -->
+            <div class="progress">
+                <div class="loaded"></div>
+                <div class="line"></div>
+                <div class="bar"></div>
+            </div>
+            <!-- 时间 -->
+            <div class="timer">
+                <span class="current">00:00:00</span> /
+                <span class="total">00:00:00</span>
+            </div>
+        </div>
+    </div>
+</figure>
+<script src="./js/jquery.min.js"></script>
+<script>
+    $(function(){
+        /*获取视频对象dom*/
+        var video = document.querySelector('video');
+        /*做操作*/
+        var $switch = $('.switch');
+        var $expand = $('.expand');
+
+        var $line = $('.line');
+        var $bar = $('.bar');
+
+        var $current = $('.current');
+        var $total = $('.total');
+
+        var timeFormat = function(time){
+            /*00:00:00*/
+            var h = Math.floor(time/3600);
+            var m = Math.floor(time%3600/60);
+            var s = Math.floor(time%60);
+
+            return (h>=10?h:'0'+h)+':'+(m>=10?m:'0'+m)+':'+(s>=10?s:'0'+s);
+        };
+
+        /*1.加载中*/
+        video.oncanplay = function(){
+            console.log('ok');
+            video.style.display = 'block';
+            /*显示总时长*/
+            $total.html(timeFormat(video.duration));
+        };
+
+        /*2.点击播放*/ /*3.点击暂停*/
+        $switch.on('click',function(){
+            if($switch.hasClass('fa-play')){
+                /*2.点击播放**/
+                video.play();
+                $switch.removeClass('fa-play').addClass('fa-pause');
+            }else{
+                /*3.点击暂停*/
+                video.pause();
+                $switch.removeClass('fa-pause').addClass('fa-play');
+            }
+        });
+
+        /*4.显示播放进度*/
+        video.ontimeupdate = function(){
+            /*获取当前播放的时间点*/
+            $line.css('width',video.currentTime/video.duration*100+'%');
+            /*5.显示当前的播放时间*/
+            $current.html(timeFormat(video.currentTime));
+        }
+
+        /*6.视频跃进*/
+        $bar.on('click',function(e){
+            video.currentTime = e.offsetX/$bar.width()*video.duration;
+        });
+
+        /*7.全屏*/
+        $expand.on('click',function(){
+            video.webkitRequestFullScreen();
+        });
+
+        /*8.播放结束*/
+        video.onended = function(){
+            video.currentTime = 0;
+            $line.css('width',0);
+            $current.html('00:00:00');
+            $switch.addClass('fa-play').removeClass('fa-pause');
+        }
+    });
+</script>
+</body>
+</html>
